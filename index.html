@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Reel" />
+<meta name="theme-color" content="#EDEAFB" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<title>Reel — Máster Audiovisual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<style>
+  html, body { margin:0; padding:0; font-family:'Inter',sans-serif; -webkit-tap-highlight-color: transparent; background:#EDEAFB; min-height:100%; }
+  * { -webkit-user-select: none; user-select: none; }
+  input, textarea { -webkit-user-select: text; user-select: text; }
+  #fallback { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:#EDEAFB; color:#8A82A8; font-size:14px; text-align:center; padding:24px; }
+</style>
+</head>
+<body>
+<div id="root"><div id="fallback">Cargando…</div></div>
+
+<script>
+(function () {
+  if (!window.React || !window.ReactDOM) {
+    document.getElementById('fallback').textContent = 'No se pudo cargar React. Revisa tu conexión a internet e intenta de nuevo.';
+    return;
+  }
+  var h = React.createElement;
+  var useState = React.useState;
+  var useEffect = React.useEffect;
+
+  var INK = '#241F3A';
+  var MUTED = '#8A82A8';
+  var BG = '#F7F5FC';
+  var OUTER = '#EDEAFB';
+  var PURPLE = '#8C7CF0';
+  var PURPLE_LIGHT = '#B9AEF5';
+  var ORANGE = '#F5A94E';
+  var BLUE = '#AFD1F5';
+  var MINT = '#8FE3C4';
+  var PINK = '#F0A8E0';
+  var NAVY = '#1B1730';
+
+  var MODULES = [
+    { id: 'm1', num: 1, title: 'Lenguaje audiovisual', weeks: 2, estWeeks: false,
+      objetivo: 'Aprender a pensar como director antes que como editor.',
+      topics: ['Historia del cine', 'Gramática audiovisual', 'Tipos de planos', 'Movimiento de cámara', 'Composición', 'Regla de los 180°', 'Continuidad', 'Ritmo visual', 'Psicología del montaje'],
+      libros: ['The Visual Story — Bruce Block', 'In the Blink of an Eye — Walter Murch', "The Five C's of Cinematography — Joseph Mascelli"],
+      youtube: ['StudioBinder', 'Every Frame a Painting', 'This Guy Edits', 'Cinecom.net'],
+      projectLabel: 'Proyecto final',
+      proyecto: 'Editar un montaje de 1 minuto sin efectos, usando solo el ritmo de los cortes para transmitir una emoción.' },
+    { id: 'm2', num: 2, title: 'DaVinci Resolve', weeks: 4, estWeeks: false,
+      objetivo: 'Dominar completamente el programa.',
+      overview: ['Media Page', 'Cut Page', 'Edit Page', 'Color Page', 'Fairlight', 'Deliver'],
+      topics: ['Timeline', 'Bins', 'Multicam', 'Proxy Media', 'Keyframes', 'Adjustment Clips', 'Compound Clips', 'Fusion básico', 'Exportaciones'],
+      recursosOficiales: ['Manual oficial de DaVinci Resolve (gratuito)', 'Curso oficial de Blackmagic Design (gratuito)'],
+      youtube: ['Casey Faris', 'MrAlexTech', 'Darren Mostyn', 'JayAreTV'],
+      projectLabel: 'Proyecto final',
+      proyecto: 'Editar un vlog de 5 minutos.' },
+    { id: 'm3', num: 3, title: 'Edición profesional', weeks: 4, estWeeks: false,
+      topics: ['Ritmo', 'J Cuts', 'L Cuts', 'Speed Ramping', 'Match Cuts', 'Seamless Transitions', 'B-Roll', 'Storytelling'],
+      libros: ['The Technique of Film Editing'],
+      projectLabel: 'Ejercicio',
+      proyecto: 'Recrear un Reel famoso.' },
+    { id: 'm4', num: 4, title: 'Audio', weeks: 2, estWeeks: false,
+      topics: ['Ecualización', 'Compresión', 'Foley', 'Diseño sonoro', 'Ambientes', 'Música'],
+      libros: ['The Sound Effects Bible'],
+      recursos: ['Freesound', 'Artlist', 'Epidemic Sound'],
+      projectLabel: 'Proyecto final',
+      proyecto: 'Rehacer completamente el sonido de una escena sin usar el audio original.' },
+    { id: 'm5', num: 5, title: 'Color', weeks: 3, estWeeks: false,
+      topics: ['Color Science', 'Corrección primaria', 'Corrección secundaria', 'Curvas', 'Qualifiers', 'Power Windows', 'LUTs', 'Looks cinematográficos'],
+      libros: ['Color Correction Handbook — Alexis Van Hurkman'],
+      youtube: ['Darren Mostyn', 'Cullen Kelly'],
+      projectLabel: 'Proyecto final',
+      proyecto: 'Colorizar un cortometraje.' },
+    { id: 'm6', num: 6, title: 'Motion Graphics', weeks: 7, estWeeks: true,
+      overview: ['Opción A — Fusion (DaVinci)', 'Opción B — After Effects'],
+      topics: ['Animación', 'Tracking', 'Máscaras', 'Motion Blur', 'Graph Editor', 'Expresiones', 'Partículas'],
+      libros: ['Creating Motion Graphics with After Effects'],
+      projectLabel: null },
+    { id: 'm7', num: 7, title: 'Edición para redes sociales', weeks: 6, estWeeks: true,
+      topics: ['Hooks', 'Retención', 'Algoritmos', 'Shorts', 'TikTok', 'Reels', 'Subtítulos', 'Viralidad'],
+      youtube: ['MrBeast', 'Alex Hormozi', 'Ali Abdaal', 'Hayden Hillier-Smith'],
+      youtubeLabel: 'Analiza el contenido de',
+      projectLabel: 'Proyecto final',
+      proyecto: 'Editar 30 Shorts.' },
+    { id: 'm8', num: 8, title: 'Negocio', weeks: 6, estWeeks: true,
+      topics: ['Marca personal', 'Portfolio', 'Clientes', 'Presupuestos', 'Contratos', 'Networking', 'Productividad'],
+      libros: ['The Freelance Manifesto', 'The Personal MBA'],
+      projectLabel: 'Proyecto final',
+      proyecto: 'Conseguir el primer cliente.' }
+  ];
+
+  var RECURSOS_PERMANENTES = {
+    'Música': ['Artlist', 'Epidemic Sound', 'Soundstripe'],
+    'Sonidos': ['Freesound', 'Boom Library', 'Sonniss'],
+    'Videos': ['Pexels', 'Mixkit', 'Pixabay'],
+    'Tipografías': ['Google Fonts', 'Fontshare'],
+    'Color': ['CinePrint LUTs', 'Juan Melara PowerGrades'],
+    'Inspiración': ['Behance', 'ArtStation', 'Vimeo Staff Picks']
+  };
+
+  var SEGUNDA_ETAPA = [
+    { name: 'Blender', desc: 'Modelado y animación 3D' },
+    { name: 'Resolume Arena', desc: 'VJ en vivo' },
+    { name: 'MadMapper', desc: 'Projection mapping' },
+    { name: 'TouchDesigner', desc: 'Visuales generativos' },
+    { name: 'Notch', desc: 'Gráficos en tiempo real' },
+    { name: 'Unreal Engine', desc: 'Escenografía virtual' }
+  ];
+
+  var STATUS_STYLE = {
+    pending: { bg: BLUE, badge: 'Por hacer', ink: '#1B3A5C' },
+    progress: { bg: ORANGE, badge: 'En progreso', ink: '#4A2E05' },
+    done: { bg: MINT, badge: 'Completado', ink: '#0B3A2A' }
+  };
+
+  var STORAGE_KEY = 'reel-progress-v1';
+
+  function withDefaults(data) {
+    var next = Object.assign({}, data);
+    MODULES.forEach(function (m) {
+      var existing = next[m.id];
+      if (!existing) {
+        next[m.id] = { checked: Array(m.topics.length).fill(false), hours: 0, notes: '' };
+      } else {
+        next[m.id] = {
+          checked: Array.isArray(existing.checked) && existing.checked.length === m.topics.length ? existing.checked : Array(m.topics.length).fill(false),
+          hours: typeof existing.hours === 'number' ? existing.hours : 0,
+          notes: typeof existing.notes === 'string' ? existing.notes : ''
+        };
+      }
+    });
+    return next;
+  }
+
+  function App() {
+    var progressState = useState(null);
+    var progress = progressState[0], setProgress = progressState[1];
+    var activeState = useState('m1');
+    var activeId = activeState[0], setActiveId = activeState[1];
+    var sheetState = useState(null);
+    var sheetId = sheetState[0], setSheetId = sheetState[1];
+    var tabState = useState('home');
+    var tab = tabState[0], setTab = tabState[1];
+
+    useEffect(function () {
+      var raw = null;
+      try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+      setProgress(withDefaults(raw ? JSON.parse(raw) : {}));
+    }, []);
+
+    useEffect(function () {
+      if (!progress) return;
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch (e) {}
+    }, [progress]);
+
+    if (!progress) {
+      return h('div', { className: 'min-h-screen flex items-center justify-center', style: { background: OUTER, color: MUTED } }, h('span', { className: 'text-sm' }, 'Cargando…'));
+    }
+
+    function toggleTopic(moduleId, idx) {
+      setProgress(function (prev) {
+        var checked = prev[moduleId].checked.slice();
+        checked[idx] = !checked[idx];
+        var next = Object.assign({}, prev);
+        next[moduleId] = Object.assign({}, prev[moduleId], { checked: checked });
+        return next;
+      });
+    }
+    function updateHours(moduleId, hours) {
+      setProgress(function (prev) {
+        var next = Object.assign({}, prev);
+        next[moduleId] = Object.assign({}, prev[moduleId], { hours: hours });
+        return next;
+      });
+    }
+    function updateNotes(moduleId, notes) {
+      setProgress(function (prev) {
+        var next = Object.assign({}, prev);
+        next[moduleId] = Object.assign({}, prev[moduleId], { notes: notes });
+        return next;
+      });
+    }
+    function getStatus(m) {
+      var p = progress[m.id];
+      var total = m.topics.length;
+      var done = p.checked.filter(Boolean).length;
+      var ratio = total ? done / total : 0;
+      var status = done === 0 ? 'pending' : done === total ? 'done' : 'progress';
+      return { done: done, total: total, ratio: ratio, status: status };
+    }
+
+    var totalWeeks = 0, weighted = 0;
+    MODULES.forEach(function (m) {
+      var st = getStatus(m);
+      totalWeeks += m.weeks;
+      weighted += m.weeks * st.ratio;
+    });
+    var overallPct = totalWeeks ? Math.round((weighted / totalWeeks) * 100) : 0;
+    var totalHours = Object.keys(progress).reduce(function (s, k) { return s + (progress[k].hours || 0); }, 0);
+    var allDone = overallPct === 100;
+
+    var activeModule = MODULES.filter(function (m) { return m.id === activeId; })[0] || MODULES[0];
+    var activeIndex = MODULES.indexOf(activeModule);
+    var nextModule = MODULES[(activeIndex + 1) % MODULES.length];
+    var sheetModule = MODULES.filter(function (m) { return m.id === sheetId; })[0];
+
+    function ModuleCard(props) {
+      var m = props.m, compact = props.compact;
+      var st = getStatus(m);
+      var s = STATUS_STYLE[st.status];
+      return h('button', {
+        onClick: function () { setSheetId(m.id); },
+        className: 'rounded-3xl p-4 text-left flex flex-col justify-between w-full',
+        style: { background: s.bg, height: compact ? '168px' : '190px' }
+      },
+        h('div', null,
+          h('span', { className: 'text-xs px-2 py-1 rounded-full inline-block mb-2', style: { background: 'rgba(255,255,255,0.55)', color: s.ink } }, s.badge),
+          h('div', { className: 'font-bold leading-tight', style: { fontFamily: "'Baloo 2',sans-serif", color: s.ink, fontSize: compact ? '17px' : '20px' } }, m.title),
+          h('div', { className: 'text-xs mt-1', style: { color: s.ink, opacity: 0.75 } }, m.weeks + ' semana' + (m.weeks > 1 ? 's' : '') + ' · ' + st.done + '/' + st.total + ' competencias')
+        ),
+        h('div', { className: 'text-xs font-semibold', style: { color: s.ink, opacity: 0.85 } }, 'Módulo ' + String(m.num).padStart(2, '0') + ' →')
+      );
+    }
+
+    var NAV_ITEMS = [
+      { id: 'home', icon: '🏠' },
+      { id: 'modules', icon: '▦' },
+      { id: 'progress', icon: '📊' },
+      { id: 'resources', icon: '📚' }
+    ];
+
+    function NavBtn(props) {
+      var active = tab === props.id;
+      return h('button', {
+        onClick: function () { setTab(props.id); },
+        className: 'w-11 h-11 rounded-full flex items-center justify-center text-base',
+        style: { background: active ? '#fff' : 'transparent' }
+      }, props.icon);
+    }
+
+    function resourceBlock(label, items) {
+      return h('div', { className: 'mb-4' },
+        h('div', { className: 'text-xs font-semibold uppercase tracking-wide mb-1', style: { color: MUTED } }, label),
+        h('ul', { className: 'text-sm space-y-1' }, items.map(function (b, i) { return h('li', { key: i, style: { color: INK } }, b); }))
+      );
+    }
+
+    var homeContent = tab === 'home' ? [
+      h('div', { className: 'flex items-center justify-between mb-5', key: 'header' },
+        h('div', { className: 'flex items-center gap-3' },
+          h('div', { className: 'w-11 h-11 rounded-full flex items-center justify-center text-lg', style: { background: 'linear-gradient(135deg, ' + PURPLE + ', ' + PURPLE_LIGHT + ')' } }, '🎬'),
+          h('div', null,
+            h('div', { className: 'text-base font-bold', style: { fontFamily: "'Baloo 2',sans-serif", color: INK } }, 'Hola 👋'),
+            h('div', { className: 'text-xs', style: { color: MUTED } }, overallPct + '% del máster · ' + totalHours + 'h registradas')
+          )
+        ),
+        h('button', { onClick: function () { setTab('resources'); }, className: 'w-10 h-10 rounded-full flex items-center justify-center', style: { background: '#fff', boxShadow: '0 2px 8px rgba(90,70,160,0.12)' } }, '🔍')
+      ),
+      h('div', { className: 'relative rounded-3xl p-5 mb-5 overflow-hidden', style: { background: 'linear-gradient(135deg, ' + PURPLE_LIGHT + ', ' + PURPLE + ')', minHeight: '150px' }, key: 'hero' },
+        h('div', { className: 'absolute', style: { right: '-10px', bottom: '-18px' } },
+          h('div', { style: { width: '90px', height: '90px', borderRadius: '1.2rem', background: ORANGE, position: 'absolute', right: 0, bottom: 0, opacity: 0.9 } }),
+          h('div', { style: { width: '64px', height: '64px', borderRadius: '9999px', background: '#F6D34D', position: 'absolute', right: '58px', bottom: '10px', opacity: 0.9 } }),
+          h('div', { style: { width: '54px', height: '54px', borderRadius: '9999px', background: '#5B5470', position: 'absolute', right: '4px', bottom: '76px', opacity: 0.85 } })
+        ),
+        h('div', { className: 'relative', style: { maxWidth: '60%' } },
+          h('div', { className: 'font-bold mb-1', style: { fontFamily: "'Baloo 2',sans-serif", color: '#1E1836', fontSize: '19px' } }, 'Reto de esta semana'),
+          h('div', { className: 'text-xs mb-3', style: { color: '#3C3560' } }, 'Avanza en ' + activeModule.title),
+          h('div', { className: 'flex gap-1.5' }, ['🎬', '🎧', '🎨', '🎵'].map(function (icon, i) {
+            return h('div', { key: i, className: 'w-7 h-7 rounded-full flex items-center justify-center text-xs', style: { background: 'rgba(255,255,255,0.4)' } }, icon);
+          }))
+        )
+      ),
+      h('div', { className: 'flex gap-2 overflow-x-auto mb-6', style: { paddingBottom: '4px' }, key: 'pills' },
+        MODULES.map(function (m) {
+          var st = getStatus(m);
+          var dot = st.status === 'done' ? MINT : st.status === 'progress' ? ORANGE : '#C7C2DE';
+          var isActive = activeId === m.id;
+          return h('button', {
+            key: m.id,
+            onClick: function () { setActiveId(m.id); },
+            className: 'flex flex-col items-center justify-center rounded-2xl flex-shrink-0',
+            style: { width: '54px', height: '68px', background: isActive ? NAVY : '#fff', boxShadow: isActive ? 'none' : '0 2px 6px rgba(90,70,160,0.08)' }
+          },
+            h('span', { className: 'rounded-full mb-1', style: { width: '6px', height: '6px', background: dot } }),
+            h('span', { className: 'text-xs', style: { color: isActive ? '#fff' : MUTED } }, 'M' + m.num),
+            h('span', { className: 'text-xs font-semibold', style: { color: isActive ? '#fff' : INK } }, m.weeks + 's')
+          );
+        })
+      ),
+      h('div', { className: 'text-lg font-bold mb-3', style: { fontFamily: "'Baloo 2',sans-serif", color: INK }, key: 'planTitle' }, 'Tu plan'),
+      h('div', { className: 'grid grid-cols-2 gap-3 mb-3', key: 'planCards' },
+        h(ModuleCard, { m: activeModule }),
+        h(ModuleCard, { m: nextModule })
+      ),
+      h('button', {
+        onClick: function () { setTab('resources'); },
+        className: 'w-full rounded-3xl p-4 flex items-center justify-center gap-4',
+        style: { background: PINK },
+        key: 'quickLinks'
+      },
+        h('div', { className: 'w-9 h-9 rounded-full flex items-center justify-center', style: { background: 'rgba(255,255,255,0.6)' } }, '📚'),
+        h('div', { className: 'w-9 h-9 rounded-full flex items-center justify-center', style: { background: 'rgba(255,255,255,0.6)' } }, '▶️'),
+        h('div', { className: 'w-9 h-9 rounded-full flex items-center justify-center', style: { background: 'rgba(255,255,255,0.6)' } }, '🎵')
+      )
+    ] : null;
+
+    var modulesContent = tab === 'modules' ? [
+      h('div', { className: 'text-lg font-bold mb-4', style: { fontFamily: "'Baloo 2',sans-serif", color: INK }, key: 'title' }, 'Módulos'),
+      h('div', { className: 'grid grid-cols-2 gap-3', key: 'grid' }, MODULES.map(function (m) { return h(ModuleCard, { key: m.id, m: m, compact: true }); }))
+    ] : null;
+
+    var progressContent = tab === 'progress' ? [
+      h('div', { className: 'font-bold mb-1', style: { fontFamily: "'Baloo 2',sans-serif", color: INK, fontSize: '34px' }, key: 'pct' }, overallPct + '%'),
+      h('div', { className: 'text-xs mb-5', style: { color: MUTED }, key: 'sub' }, 'completado · ' + totalHours + 'h registradas en total'),
+      h('div', { className: 'space-y-4', key: 'bars' }, MODULES.map(function (m) {
+        var st = getStatus(m);
+        var color = st.status === 'done' ? MINT : st.status === 'progress' ? ORANGE : '#C7C2DE';
+        return h('div', { key: m.id },
+          h('div', { className: 'flex justify-between text-xs mb-1' },
+            h('span', { style: { color: INK, fontWeight: 600 } }, m.title),
+            h('span', { style: { color: MUTED } }, st.done + '/' + st.total)
+          ),
+          h('div', { className: 'w-full rounded-full', style: { background: '#E7E2F7', height: '8px' } },
+            h('div', { className: 'rounded-full', style: { width: (st.ratio * 100) + '%', background: color, height: '8px' } })
+          )
+        );
+      }))
+    ] : null;
+
+    var resourcesContent = tab === 'resources' ? [
+      h('div', { className: 'text-lg font-bold mb-3', style: { fontFamily: "'Baloo 2',sans-serif", color: INK }, key: 'title' }, 'Recursos permanentes'),
+      h('div', { className: 'grid grid-cols-2 gap-3 mb-6', key: 'grid' }, Object.keys(RECURSOS_PERMANENTES).map(function (cat) {
+        return h('div', { key: cat, className: 'rounded-2xl p-3', style: { background: '#fff' } },
+          h('div', { className: 'text-xs font-semibold mb-1', style: { color: PURPLE } }, cat),
+          h('div', { className: 'text-xs', style: { color: MUTED } }, RECURSOS_PERMANENTES[cat].join(' · '))
+        );
+      })),
+      h('div', { className: 'flex items-center gap-2 mb-3', key: 'lockRow' },
+        h('span', null, '🔒'),
+        h('div', { className: 'text-lg font-bold', style: { fontFamily: "'Baloo 2',sans-serif", color: INK } }, 'Segunda etapa')
+      ),
+      h('div', { className: 'space-y-2', key: 'list' }, SEGUNDA_ETAPA.map(function (s) {
+        return h('div', { key: s.name, className: 'rounded-2xl p-3', style: { background: '#fff', opacity: allDone ? 1 : 0.6 } },
+          h('div', { className: 'text-sm font-semibold', style: { color: INK } }, s.name),
+          h('div', { className: 'text-xs', style: { color: MUTED } }, s.desc)
+        );
+      })),
+      h('p', { className: 'text-xs mt-3', style: { color: MUTED }, key: 'note' }, 'Se desbloquea al completar los 8 módulos.')
+    ] : null;
+
+    var sheetContent = null;
+    if (sheetModule) {
+      var st2 = getStatus(sheetModule);
+      var s2 = STATUS_STYLE[st2.status];
+      var body = [
+        h('div', { className: 'flex items-start justify-between mb-4', key: 'head' },
+          h('div', null,
+            h('span', { className: 'text-xs px-2 py-1 rounded-full inline-block mb-2', style: { background: s2.bg, color: s2.ink } }, s2.badge + ' · ' + st2.done + '/' + st2.total),
+            h('div', { className: 'font-bold', style: { fontFamily: "'Baloo 2',sans-serif", color: INK, fontSize: '22px' } }, sheetModule.title),
+            h('div', { className: 'text-xs mt-1', style: { color: MUTED } }, 'Módulo ' + String(sheetModule.num).padStart(2, '0') + ' · ' + sheetModule.weeks + ' semana' + (sheetModule.weeks > 1 ? 's' : '') + (sheetModule.estWeeks ? ' (estimado)' : '')),
+            sheetModule.objetivo ? h('div', { className: 'text-xs italic mt-1', style: { color: MUTED } }, sheetModule.objetivo) : null
+          ),
+          h('button', { onClick: function () { setSheetId(null); }, className: 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0', style: { background: BG } }, '✕')
+        )
+      ];
+      if (sheetModule.overview) {
+        body.push(h('div', { className: 'flex flex-wrap gap-2 mb-4', key: 'overview' }, sheetModule.overview.map(function (o, i) {
+          return h('span', { key: i, className: 'text-xs px-2 py-1 rounded-full', style: { background: BG, color: MUTED } }, o);
+        })));
+      }
+      body.push(h('div', { className: 'text-xs font-semibold uppercase tracking-wide mb-2', style: { color: MUTED }, key: 'compLabel' }, 'Competencias'));
+      body.push(h('div', { className: 'space-y-2 mb-5', key: 'comp' }, sheetModule.topics.map(function (t, i) {
+        var checked = progress[sheetModule.id].checked[i];
+        return h('button', { key: i, onClick: function () { toggleTopic(sheetModule.id, i); }, className: 'flex items-center gap-2 w-full text-left text-sm' },
+          h('span', null, checked ? '✅' : '⚪'),
+          h('span', { style: { color: checked ? MUTED : INK, textDecoration: checked ? 'line-through' : 'none' } }, t)
+        );
+      })));
+      if (sheetModule.projectLabel) {
+        body.push(h('div', { className: 'rounded-2xl p-4 mb-5', style: { background: '#FDEBD3' }, key: 'project' },
+          h('div', { className: 'text-xs font-semibold uppercase tracking-wide mb-1', style: { color: '#B5701A' } }, sheetModule.projectLabel),
+          h('p', { className: 'text-sm', style: { color: INK } }, sheetModule.proyecto)
+        ));
+      }
+      if (sheetModule.libros && sheetModule.libros.length) body.push(h('div', { key: 'libros' }, resourceBlock('Libros', sheetModule.libros)));
+      if (sheetModule.recursosOficiales) body.push(h('div', { key: 'oficiales' }, resourceBlock('Oficiales', sheetModule.recursosOficiales)));
+      if (sheetModule.recursos) body.push(h('div', { key: 'recursos' }, resourceBlock('Bancos', sheetModule.recursos)));
+      if (sheetModule.youtube) body.push(h('div', { key: 'youtube' }, resourceBlock(sheetModule.youtubeLabel || 'YouTube', sheetModule.youtube)));
+
+      body.push(h('div', { className: 'pt-3 mt-2', style: { borderTop: '1px solid ' + BG }, key: 'footer' },
+        h('label', { className: 'text-xs font-semibold uppercase tracking-wide block mb-1', style: { color: MUTED } }, 'Horas dedicadas'),
+        h('input', {
+          type: 'number', min: '0', value: progress[sheetModule.id].hours,
+          onChange: function (e) { updateHours(sheetModule.id, Math.max(0, Number(e.target.value) || 0)); },
+          className: 'w-24 rounded-xl px-3 py-2 text-sm mb-4', style: { background: BG, border: 'none', color: INK }
+        }),
+        h('label', { className: 'text-xs font-semibold uppercase tracking-wide block mb-1', style: { color: MUTED } }, 'Notas'),
+        h('textarea', {
+          value: progress[sheetModule.id].notes,
+          onChange: function (e) { updateNotes(sheetModule.id, e.target.value); },
+          rows: 3,
+          className: 'w-full rounded-xl px-3 py-2 text-sm', style: { background: BG, border: 'none', color: INK },
+          placeholder: 'Apuntes, dudas, referencias...'
+        })
+      ));
+
+      sheetContent = h('div', {
+        className: 'fixed inset-0 flex items-end justify-center', style: { background: 'rgba(20,15,40,0.45)', zIndex: 50 },
+        onClick: function () { setSheetId(null); }
+      },
+        h('div', {
+          onClick: function (e) { e.stopPropagation(); },
+          className: 'w-full overflow-y-auto',
+          style: { background: '#fff', maxWidth: '420px', borderTopLeftRadius: '2rem', borderTopRightRadius: '2rem', maxHeight: '85vh', padding: '24px' }
+        }, body)
+      );
+    }
+
+    return h('div', { className: 'min-h-screen flex items-start justify-center p-4 md:p-10', style: { background: 'linear-gradient(180deg, ' + OUTER + ' 0%, #E3DEFB 100%)', paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' } },
+      h('div', { className: 'relative w-full', style: { maxWidth: '420px', background: BG, borderRadius: '2rem', boxShadow: '0 20px 60px rgba(90,70,160,0.18)', padding: '20px', minHeight: '640px' } },
+        h('div', { className: 'pb-24' }, homeContent || modulesContent || progressContent || resourcesContent),
+        h('div', { className: 'absolute flex items-center gap-1 px-2 py-2 rounded-full', style: { background: NAVY, bottom: '16px', left: '50%', transform: 'translateX(-50%)' } },
+          NAV_ITEMS.map(function (n) { return h(NavBtn, { key: n.id, id: n.id, icon: n.icon }); })
+        )
+      ),
+      sheetContent
+    );
+  }
+
+  var root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(h(App));
+})();
+</script>
+</body>
+</html>
